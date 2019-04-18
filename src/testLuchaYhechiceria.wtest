@@ -1,0 +1,218 @@
+import artefactos.*
+import personaje.*
+import comerciante.*
+import hechizos.*
+describe "test lucha y hechiceria"{
+	
+   var hechizoComercial = new HechizoComercial()
+    var mock = new Comerciante(tipoDeComerciante=comercianteRegistrado)
+    var espada = new Arma()
+    var alacachula = new HechizoDeLogos(nombre="alacachula cachicomula",multiploDe=1)
+    var espectro = new HechizoDeLogos(nombre="espectro malefico",multiploDe=3)
+    var xenia= new Personaje(comerciante=mock)
+	var thor = new Personaje(comerciante=mock)
+	var loki = new Personaje()
+	var furibunda = new Personaje(hechizoPreferido=hechizoComercial,comerciante=mock)
+	var collarDivino = new Collar(perlas=5)
+	var armaduraSinRefuerzo = new Armadura(peso=12)
+	var mallaDeCotas = new CotaDeMalla(poder=5)
+	var armaduraConCota = new Armadura(refuerzo=mallaDeCotas,peso=10)
+	var armaduraConBendicion = new Armadura(refuerzo=bendicion)
+	var armaduraConAlacachula = new Armadura(refuerzo=alacachula)	
+	var armaduraHechizoPar = new Armadura(refuerzo=hechizoComercial,peso=12)
+	var armaduraHechizoImpar = new Armadura(refuerzo=espectro,peso=12)
+	var espadaVieja = new Arma(peso=7,fechaCompra= new Date(7,5,2006))
+	var espadaNueva = new Arma(peso=4)
+	var mascaraOscura= new Mascara(indiceDeOscuridad=1,valorMinimo=1,peso=3)
+	var mascaraClara= new Mascara(indiceDeOscuridad=0,valorMinimo=0,peso=2)
+	var merlin = new Personaje(capacidadMaxima=10,comerciante=mock)
+	var ursula = new Personaje(artefactos=[mascaraOscura,armaduraConCota],comerciante=mock)
+	var facil = new Nivel(multiplicador=1)
+	var moderado = new Nivel(multiplicador=2)
+	var dificil = new Nivel(multiplicador=4)
+	var navi = new PersonajeNoControlado(nivel=facil,comerciante=mock)
+	var ash = new PersonajeNoControlado(nivel=moderado,comerciante=mock,valorBaseDeLucha=5,artefactos=[mascaraClara])
+ 
+	var independiente = new ComercianteIndependiente(comision= 9)
+	var pastoriza = new Comerciante(tipoDeComerciante=independiente)
+	var prieto = new Comerciante(tipoDeComerciante=comercianteRegistrado)
+	var fermepin = new Comerciante(tipoDeComerciante=new ComercianteConImpuesto())
+    fixture{
+      	loki.oro(5)
+    	espadaComun.peso(5) 
+    }
+
+ method compraXenia(){
+ 	xenia.agregar(espada)
+ 	xenia.agregar(collarDivino)
+ 	xenia.agregar(armaduraSinRefuerzo)
+ 	xenia.agregar(armaduraConCota)
+ 	
+ }
+ 
+  method comprarA(comprador,comerciante,artefacto){
+  	comprador.comerciante(comerciante)
+  	comprador.agregar(artefacto)
+  	
+  }
+  test "Conocer el precio de lista de un hechizo de logo cuyo nombre es “alacachula cachicomula”."{
+  	assert.equals(22,alacachula.precio(null))
+  }
+  test "xenia canjea por hechizo basico"{
+  	xenia.cambiarHechizoPreferido(hechizoBasico)
+  	assert.equals(95,xenia.oro())
+  }
+  test "thor canjea por alacachula"{
+  	thor.cambiarHechizoPreferido(alacachula)
+  	assert.equals(83,thor.oro())
+  }
+    test "thor canjea por hechizo basico dos veces"{
+  	thor.cambiarHechizoPreferido(hechizoBasico)
+  	thor.cambiarHechizoPreferido(hechizoBasico)
+  	assert.equals(90,thor.oro())
+  }
+  test "Loki comienza con 5 monedas. Quiere canjear el hechizo por el de “alacachula cachicomula” del juego de datos.No puede"{
+  	assert.throwsException({loki.cambiarHechizoPreferido(alacachula)})
+  }
+  
+  test "Xenia compra a Mock Hnos, queda con 82,455 monedas"{
+  	self.compraXenia()
+  	assert.equals(82.455,xenia.oro())
+  }
+  
+  test "xenia compra 4 artefactos" {
+  	self.compraXenia()
+  	var cantidad = xenia.artefactos().size()
+  	assert.equals(4,cantidad)
+  }
+  
+  test "Thor compra una armadura con bendición como refuerzo, y una armadura reforzada con el hechizo alacachula queda con 73.38 monedas" {
+  	thor.agregar(armaduraConAlacachula)
+  	thor.agregar(armaduraConBendicion)
+  	assert.equals(73.38,thor.oro())
+  }
+  test"loki no puede comprar el espejo" {
+  	assert.throwsException({loki.agregar(espejo)})
+  	
+  }
+  test"xenia adquiere libro de hechizos, le quedan 53 monedas"{
+  	libroDeHechizos.agregar(alacachula)
+  	libroDeHechizos.agregar(hechizoBasico)
+  	xenia.cambiarHechizoPreferido(libroDeHechizos)
+  	assert.equals(53,xenia.oro())
+  }
+  
+  test "nivel de hechiceria de furibunda 29"{
+  	assert.equals(29,furibunda.nivelDeHechiceria())
+  }
+  
+  test "el hechizo comercial no es poderoso"{
+  	assert.notThat(hechizoComercial.esPoderoso())
+  }
+   test "El espectro maléfico es poderoso"{
+  	assert.that(espectro.esPoderoso())
+  }
+  
+  test"peso de la espada vieja"{
+  	assert.equals(6,espadaVieja.peso())
+  }
+  test"peso de la espada nueva"{
+  	assert.equals(4,espadaNueva.peso())
+  }
+   test"peso de la espada commun"{
+  	assert.equals(4.95,espadaComun.peso())
+  }
+  
+   test"peso del collar divino"{
+  	assert.equals(2.5,collarDivino.peso())
+  }
+  
+   test"peso de la mascara oscura"{
+  	assert.equals(3,mascaraOscura.peso())
+  }
+  test"peso de la mascara oscura con eclipse"{
+  	fuerzaOscura.eclipse()
+  	assert.equals(5,mascaraOscura.peso())
+  }
+  test"peso de la mascara clara"{
+  	assert.equals(2,mascaraClara.peso())
+  }
+  test "Saber cuál es el peso total de la armadura con cota de malla."{
+  	assert.equals(11,armaduraConCota.peso())
+  }
+  test "Saber cuál es el peso total de la armadura con hechizo par,14"{
+  	assert.equals(14,armaduraHechizoPar.peso())
+  }
+  test "Saber cuál es el peso total de la armadura con hechizo impar,13"{
+  	assert.equals(13,armaduraHechizoImpar.peso())
+  }
+  
+   test "Saber cuál es el peso total de la armadura sin refuerzo,12"{
+  	assert.equals(12,armaduraSinRefuerzo.peso())
+  }
+  
+  test "Merlín le compra a Mock Hnos. la máscara clara y la oscura (sin que haya eclipse). Saber cuál es el peso total que carga Merlin."{
+  	merlin.agregar(mascaraClara)
+  	merlin.agregar(mascaraOscura)
+  	assert.equals(5,merlin.pesoTotal())
+  }
+  test "merlin no puede comprar la armadura con hechizo par"{
+  	assert.throwsException({merlin.agregar(armaduraHechizoPar)})
+  }
+   test "peso si ursula elimina la cota de mallas,3"{
+  	ursula.eliminar(armaduraConCota)
+  	assert.equals(3,ursula.pesoTotal())
+  }
+  test "Conocer la habilidad para la lucha de navi"{
+  	assert.equals(1,navi.nivelDeLucha())
+  }
+  test "Conocer la habilidad para la lucha de Ashley Graham."{
+  	mascaraClara.valorMinimo(4)
+  	assert.equals(18,ash.nivelDeLucha())
+  }
+  test "Hacer que Ashley Graham tenga dificultad difícil. Conocer la habilidad para la lucha de Ashley Graham."{
+  	ash.nivel(dificil)
+  	mascaraClara.valorMinimo(4)
+  	assert.equals(36,ash.nivelDeLucha())
+  }
+ 
+
+  test "ursula compra mascara oscura a pastoriza"{
+  	self.comprarA(ursula,pastoriza,mascaraOscura)
+  	assert.equals(87,ursula.oro())
+  }
+  
+  test "ursula compra mascara oscura a prieto"{
+  	self.comprarA(ursula,prieto,mascaraOscura)
+  	assert.equals(87.9,ursula.oro())
+  }
+  
+  test "ursula compra mascara oscura a fermin"{
+  	self.comprarA(ursula,fermepin,mascaraOscura)
+  	assert.equals(86.15,ursula.oro())
+  }
+
+   test "Recategorizar a Pastoriza.Hacer que Ursula le compre la máscara oscura a Pastoriza."{
+  	pastoriza.recategorizacion()
+  	self.comprarA(ursula,pastoriza,mascaraOscura)
+  	assert.equals(86.1,ursula.oro())	
+  }
+  
+    test "Recategorizardos veces a Pastoriza.Hacer que Ursula le compre la máscara oscura a Pastoriza."{
+  	pastoriza.recategorizacion()
+  	pastoriza.recategorizacion()
+  	self.comprarA(ursula,pastoriza,mascaraOscura)
+  	assert.equals(87.9,ursula.oro())
+  	assert.equals(comercianteRegistrado,pastoriza.tipoDeComerciante())
+  }
+   test "Recategorizar a Prieto.Hacer que Ursula le compre la máscara oscura a Prieto."{
+  	prieto.recategorizacion()
+  self.comprarA(ursula,prieto,mascaraOscura)
+  	assert.equals(86.15,ursula.oro())
+  }
+  test "Recategorizar a Fermepin.Hacer que Ursula le compre la máscara oscura a Fermepin."{
+  	fermepin.recategorizacion()
+  	self.comprarA(ursula,fermepin,mascaraOscura)
+  	assert.equals(86.15,ursula.oro())
+  }
+  }
